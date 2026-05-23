@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta name="x5-orientation" content="portrait">
+<meta name="x5-fullscreen" content="true">
+<title>趣味英语跟读｜曹冲称象</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#FFF5E6;padding:15px;font-family:"圆体","微软雅黑"}
+.wrap{max-width:100%;margin:0 auto;background:#ffffff;padding:20px;border-radius:20px;box-shadow:0 4px 15px #ffd8b8}
+h3{text-align:center;color:#FF7A2F;margin-bottom:20px;font-size:22px;text-shadow:1px 1px 2px #ffe0c0}
+.tip-text{color:#666;font-size:14px;margin-bottom:10px;text-align:center}
+.progress-bar{background:#f1f1f1;border-radius:20px;height:14px;margin:10px 0;overflow:hidden}
+.progress-fill{background:#4CD964;height:100%;transition:0.3s;width:0%}
+.info-text{text-align:center;color:#777;font-size:14px;margin:8px 0}
+.sentence-box{
+padding:18px;
+font-size:17px;
+line-height:1.8;
+border:3px dashed #5CC8FF;
+border-radius:16px;
+margin:15px 0;
+min-height:auto;
+text-align:center;
+background:#F8FBFF;
+word-wrap:break-word;
+overflow-wrap:break-word;
+}
+.cn-explain{
+margin-top:12px;
+font-size:14px;
+color:#666;
+padding-top:10px;
+border-top:1px dashed #cce8ff;
+line-height:1.7;
+}
+.ani1{animation: fadeIn 0.7s ease forwards}
+.ani2{animation: slideIn 0.7s ease forwards}
+.ani3{animation: bounceIn 0.7s ease forwards}
+.ani4{animation: scaleIn 0.7s ease forwards}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideIn{from{transform:translateX(-40px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes bounceIn{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1)}}
+@keyframes scaleIn{from{transform:scale(.6) rotate(-5deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.word{cursor:pointer;padding:2px 4px;margin:0 2px;border-radius:5px;display:inline-block}
+.word:active{background:#FFE873;color:#ff5500}
+.btn-group{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:15px 0}
+.btn{padding:10px 14px;border:none;border-radius:25px;color:#fff;font-size:15px;font-weight:bold}
+.btn:active{transform:scale(.96)}
+.btn1{background:#54A0FF}
+.btn2{background:#37D179}
+.btn3{background:#FF6B6B}
+.ok{background:#E8FFEF;color:#229944;padding:10px;border-radius:10px;margin-top:12px;text-align:center}
+.err{background:#FFF0F0;color:#E53E3E;padding:10px;border-radius:10px;margin-top:12px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h3>🐘 曹冲称象 趣味英语跟读</h3>
+<p class="tip-text">认真跟读，轻松学会英文小故事</p>
+<div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
+<p class="info-text">学习进度：<span id="p">0</span>/<span id="t">0</span></p>
+<div class="sentence-box" id="box"></div>
+<div class="btn-group">
+<button class="btn btn1" onclick="aiRead()">🔊 AI领读</button>
+<button class="btn btn2" onclick="startSpeak()">🎤 跟读打分</button>
+<button class="btn btn1" onclick="prevSentence()">⬅️ 上一句</button>
+<button class="btn btn1" onclick="nextSentence()">➡️ 下一句</button>
+<button class="btn btn3" onclick="resetAll()">🔄 重新开始</button>
+</div>
+<div id="feedback"></div>
+</div>
+<script>
+const sentenceList=[
+{en:"Hello everyone!",cn:"大家好！"},
+{en:"Today I’d like to share a wonderful Chinese wisdom story with you.",cn:"今天我给大家分享一个充满中国智慧的小故事。"},
+{en:"Its name is Cao Chong Weighs the Elephant.",cn:"故事名字叫做曹冲称象。"},
+{en:"Long long ago, someone gave a big elephant to Cao Cao.",cn:"很久很久以前，有人送给曹操一头大象。"},
+{en:"Everyone was very curious about the elephant’s weight.",cn:"所有人都好奇大象有多重。"},
+{en:"But the elephant was huge, there was no big scale to weigh it.",cn:"可是大象体型庞大，没有大秤能够称重。"},
+{en:"Many adults tried their best to think of useful ways.",cn:"大人们都努力想出各种办法。"},
+{en:"Some people wanted to cut the elephant into small pieces.",cn:"有人提议把大象切成小块来称重。"},
+{en:"However, it was a bad idea and nobody agreed.",cn:"这个办法并不可行，大家都不赞同。"},
+{en:"At this moment, little Cao Chong came up with a smart idea.",cn:"这时小小的曹冲想出了好主意。"},
+{en:"He asked people to lead the big elephant onto a boat.",cn:"他让人把大象赶到小船上。"},
+{en:"The boat sank down slowly, and they drew a line on the boat.",cn:"船下沉，大家在船身画一条线。"},
+{en:"Then they took the elephant back to the bank.",cn:"然后把大象牵回岸边。"},
+{en:"After that, they put many stones on the boat one by one.",cn:"接着往船上放石头。"},
+{en:"They stopped adding stones when the boat reached the line.",cn:"船沉到线时就停止。"},
+{en:"Finally, they weighed all the stones on the boat.",cn:"最后称石头的重量。"},
+{en:"The total weight of the stones was exactly the elephant’s weight.",cn:"石头重量就是大象重量。"},
+{en:"Cao Chong was just a little kid, but he solved a hard problem.",cn:"曹冲虽小，却解决了大问题。"},
+{en:"He used simple ways to fix difficult things.",cn:"他用简单方法解决困难。"},
+{en:"This is the great wisdom of ancient Chinese people.",cn:"这就是古人的智慧。"},
+{en:"We should learn to think smart and be creative in our life.",cn:"我们要学会灵活思考。"},
+{en:"Thank you everyone!",cn:"谢谢大家！"}
+];
+const animations=["ani1","ani2","ani3","ani4"];
+let currentIndex=0;
+const total=sentenceList.length;
+document.getElementById("t").innerText=total;
+
+function speakVoice(text){
+const s=new SpeechSynthesisUtterance(text);
+s.lang="en-US";
+s.rate=0.85;
+s.pitch=1.05;
+speechSynthesis.speak(s);
+}
+
+function speakWord(word){speakVoice(word);document.getElementById("feedback").innerHTML="";}
+function aiRead(){const text=sentenceList[currentIndex].en;speakVoice(text);document.getElementById("feedback").innerHTML="";}
+
+function renderSingle(){
+const item=sentenceList[currentIndex];
+const words=item.en.split(" ");
+let enHtml="";
+words.forEach(w=>{
+const pure=w.replace(/[,.!]/g,"");
+enHtml+=`<span class="word" ontouchstart="speakWord('${pure}')">${w}</span>`;
+});
+const ani=animations[currentIndex%4];
+document.getElementById("box").innerHTML=enHtml+`<div class="cn-explain">${item.cn}</div>`;
+document.getElementById("box").className="sentence-box "+ani;
+document.getElementById("p").innerText=currentIndex+1;
+document.getElementById("progressBar").style.width=((currentIndex+1)/total*100)+"%";
+}
+
+function startSpeak(){
+if(!window.webkitSpeechRecognition){
+document.getElementById("feedback").innerHTML='<div class="err">请在浏览器打开使用跟读</div>';
+return;
+}
+const r=new webkitSpeechRecognition();
+r.lang="en-US";
+r.start();
+document.getElementById("feedback").innerHTML="<div>😆 请跟读...</div>";
+r.onresult=e=>{
+const mine=e.results[0][0].transcript.toLowerCase();
+const standard=sentenceList[currentIndex].en.toLowerCase();
+if(standard.includes(mine)){
+document.getElementById("feedback").innerHTML='<div class="ok">🎉 太棒啦！发音标准！</div>';
+}else{
+document.getElementById("feedback").innerHTML='<div class="err">💪 再跟着多读几遍哦</div>';
+}
+};
+}
+
+function prevSentence(){if(currentIndex>0){currentIndex--;renderSingle();}}
+function nextSentence(){if(currentIndex<total-1){currentIndex++;renderSingle();}}
+function resetAll(){currentIndex=0;renderSingle();}
+renderSingle();
+</script>
+</body>
+</html>
