@@ -13,6 +13,8 @@ h3{text-align:center;color:#FF7A2F;margin-bottom:15px;font-size:22px}
 .progress-bar{background:#f1f1f1;border-radius:20px;height:14px;margin:10px 0}
 .progress-fill{background:#4CD964;height:100%;width:0%;transition:0.3s}
 .info-text{text-align:center;color:#777;font-size:14px;margin:8px 0}
+
+/* 🔥 核心修复：保证单词完整不断行，只在空格处换行 */
 .sentence-box{
 padding:18px;
 font-size:17px;
@@ -21,9 +23,14 @@ border:3px dashed #5CC8FF;
 border-radius:16px;
 margin:15px 0;
 background:#F8FBFF;
-word-wrap:break-word;
 text-align:center;
+
+white-space: normal;
+word-break: keep-all;      /* 不拆分单词 */
+overflow-wrap: normal;     /* 只在空格换行 */
+word-wrap: normal;
 }
+
 .cn-explain{
 margin-top:12px;
 font-size:14px;
@@ -39,8 +46,15 @@ border-top:1px dashed #cce8ff;
 @keyframes slideIn{from{transform:translateX(-40px);opacity:0}to{transform:translateX(0);opacity:1}}
 @keyframes bounceIn{0%{transform:scale(0.4);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1)}}
 @keyframes scaleIn{from{transform:scale(0.6) rotate(-5deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
-.word{cursor:pointer;padding:2px 4px;margin:0 2px;border-radius:5px}
+
+.word{
+display: inline-block; /* 🔥 关键：让单词永远完整 */
+padding:2px 4px;
+margin:0 2px;
+border-radius:5px;
+}
 .word:active{background:#FFE873;color:#ff5500}
+
 .btn-group{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:15px 0}
 .btn{padding:10px 14px;border:none;border-radius:25px;color:#fff;font-size:15px}
 .btn:active{transform:scale(0.96)}
@@ -104,7 +118,6 @@ let mediaRecorder;
 let audioChunks=[];
 let myAudio=null;
 
-// 解锁音频权限
 function openVoice(){
     if(!voiceReady){
         let testVoice=new SpeechSynthesisUtterance("hi");
@@ -114,7 +127,6 @@ function openVoice(){
     }
 }
 
-// 系统朗读发音
 function speakVoice(text){
     if(!voiceReady) openVoice();
     let voice=new SpeechSynthesisUtterance(text);
@@ -134,7 +146,6 @@ function aiRead(){
     document.getElementById("feedback").innerHTML="";
 }
 
-// 开始录制人声
 async function startRecord(){
     try{
         const stream=await navigator.mediaDevices.getUserMedia({audio:true});
@@ -153,7 +164,6 @@ async function startRecord(){
             document.getElementById("feedback").innerHTML='<div class="ok">✅ 录音完成，点击回放按钮听自己读音</div>';
         };
         mediaRecorder.start();
-        // 5秒自动结束录音
         setTimeout(()=>{
             if(mediaRecorder.state==="recording"){
                 mediaRecorder.stop();
@@ -165,7 +175,6 @@ async function startRecord(){
     }
 }
 
-// 回放自己录制的读音
 function playMyVoice(){
     if(myAudio){
         myAudio.play();
@@ -175,7 +184,6 @@ function playMyVoice(){
     }
 }
 
-// 渲染页面句子
 function renderSingle(){
     let item=sentenceList[currentIndex];
     let words=item.en.split(" ");
@@ -209,7 +217,6 @@ function resetAll(){
     renderSingle();
 }
 
-// 页面点击解锁声音
 document.addEventListener("touchstart",openVoice);
 document.addEventListener("click",openVoice);
 renderSingle();
